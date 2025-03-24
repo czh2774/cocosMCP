@@ -124,16 +124,115 @@ TCP 通信使用 JSON 格式的消息：
 - `CLEAR_LOGS`: 清除日志
 - `ping`: 连接测试
 
-## 故障排除
+## 应用场景
 
-### 连接问题
+### 场景一：调试游戏运行时错误
 
-如果 Cursor AI 无法连接到 Cocos Creator：
+当你的 Cocos Creator 游戏在运行时出现错误时，可以使用 Cursor AI 快速分析问题：
 
-1. 确认 Cocos Creator 已启动并加载了 cocos-mcp 扩展
-2. 检查 TCP 端口（6400）是否被占用
-3. 重启 Cocos Creator 编辑器
-4. 重新启动 MCP 服务器
+1. 在 Cocos Creator 中运行游戏
+2. 出现错误后，在 Cursor AI 中查询错误日志：
+   ```python
+   errors = await mcp.query_logs({
+       "show_logs": False,
+       "show_warnings": False,
+       "show_errors": True
+   })
+   print("Found errors:", len(errors.get("logs", [])))
+   ```
+3. 让 Cursor AI 分析错误原因并提供解决方案
+
+### 场景二：追踪特定模块的日志
+
+当你需要关注游戏中特定模块（例如物理引擎）的日志时：
+
+```python
+physics_logs = await mcp.query_logs({
+    "show_logs": True,
+    "show_warnings": True,
+    "show_errors": True,
+    "search_term": "physics"
+})
+```
+
+### 场景三：监控性能相关警告
+
+使用搜索词过滤来监控性能相关的警告：
+
+```python
+performance_warnings = await mcp.query_logs({
+    "show_logs": False,
+    "show_warnings": True,
+    "show_errors": False,
+    "search_term": "performance"
+})
+```
+
+### 场景四：调试资源加载问题
+
+查找与资源加载相关的日志：
+
+```python
+asset_logs = await mcp.query_logs({
+    "show_logs": True,
+    "show_warnings": True,
+    "show_errors": True,
+    "search_term": "assets"
+})
+```
+
+## 高级用法
+
+### 结合 Cursor AI 分析功能
+
+你可以结合 Cursor AI 的强大分析能力，自动识别和解决问题：
+
+```python
+# 获取所有错误日志
+errors = await mcp.query_logs({
+    "show_logs": False,
+    "show_warnings": False,
+    "show_errors": True
+})
+
+# 让 Cursor AI 分析每个错误并提供解决方案
+for log in errors.get("logs", []):
+    print(f"分析错误: {log['message']}")
+    # Cursor AI 分析代码...
+```
+
+### 自动清理日志
+
+在开发过程中定期清理日志，保持日志简洁：
+
+```python
+# 每次测试前清理日志
+await mcp.clear_logs()
+print("日志已清理，开始新的测试...")
+```
+
+### 持续监控
+
+设置定期查询，持续监控项目状态：
+
+```python
+import time
+
+while True:
+    errors = await mcp.query_logs({
+        "show_logs": False,
+        "show_warnings": False,
+        "show_errors": True
+    })
+    
+    if errors.get("logs", []):
+        print(f"检测到 {len(errors['logs'])} 个错误!")
+        # 处理错误...
+    
+    time.sleep(5)  # 每 5 秒检查一次
+```
+
+## 常见问题
 
 ### 日志查询返回空结果
 
@@ -144,11 +243,22 @@ TCP 通信使用 JSON 格式的消息：
 3. 尝试清除日志后再生成新的日志
 4. 重新启用 cocos-mcp 扩展
 
-## 已知限制
+### 连接问题
 
-- 日志过滤在客户端进行，而不是服务器端
-- 不支持分页加载大量日志
-- 没有持久化存储日志的功能
+如果 Cursor AI 无法连接到 Cocos Creator：
+
+1. 确认 Cocos Creator 已启动并加载了 cocos-mcp 扩展
+2. 检查 TCP 端口（6400）是否被占用
+3. 重启 Cocos Creator 编辑器
+4. 重新启动 MCP 服务器
+
+## 最佳实践
+
+1. **定期清除日志**：长时间运行会积累大量日志，影响查询性能
+2. **使用精确的搜索词**：更精确的搜索词可以帮助你更快找到相关日志
+3. **按类型过滤**：大多数情况下，错误和警告比普通日志更重要
+4. **结合 Cursor AI 分析**：让 Cursor AI 自动分析日志，提供解决方案
+5. **自动化工作流**：创建自动化脚本，简化日常开发任务
 
 ## 更新日志
 
