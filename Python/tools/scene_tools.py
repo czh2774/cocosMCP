@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 class SceneTools:
     """场景操作工具类"""
@@ -38,4 +38,48 @@ class SceneTools:
                 
         except Exception as e:
             logging.error(f"打开场景错误: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+            
+    def get_scene_info(self) -> Dict[str, Any]:
+        """
+        获取当前场景信息
+        
+        Returns:
+            场景信息
+        """
+        try:
+            logging.info("向Cocos Creator发送获取场景信息命令")
+            
+            # 发送命令并获取响应
+            response = self.cocos_client.send_command("GET_SCENE_INFO", {})
+            
+            # 记录响应
+            logging.info(f"Cocos Creator响应: {response}")
+            
+            return response
+                
+        except Exception as e:
+            logging.error(f"获取场景信息错误: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+            
+    def list_scene_nodes(self) -> Dict[str, Any]:
+        """
+        列出场景中的所有节点
+        
+        Returns:
+            节点列表
+        """
+        try:
+            logging.info("向Cocos Creator发送列出场景节点命令")
+            
+            # 发送命令并获取响应
+            response = self.cocos_client.send_command("LIST_SCENE_NODES", {})
+            
+            # 记录响应
+            logging.info(f"Cocos Creator响应: {response}")
+            
+            return response
+                
+        except Exception as e:
+            logging.error(f"列出场景节点错误: {e}", exc_info=True)
             return {"success": False, "error": str(e)} 

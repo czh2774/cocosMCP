@@ -34,22 +34,5 @@ class SceneService {
             return false;
         }
     }
-    /**
-     * 查询节点树
-     * @param nodeUuid 根节点uuid，不传入则以场景节点为根节点
-     * @returns 节点树信息
-     */
-    async queryNodeTree(nodeUuid) {
-        try {
-            console.log(`Querying node tree${nodeUuid ? ` from node: ${nodeUuid}` : ''}`);
-            const nodeTree = await Editor.Message.request('scene', 'query-node-tree', nodeUuid);
-            console.log('Node tree query successful');
-            return nodeTree;
-        }
-        catch (error) {
-            console.error('Error querying node tree:', error);
-            throw error;
-        }
-    }
 }
 exports.SceneService = SceneService;

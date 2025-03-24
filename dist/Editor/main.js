@@ -27,6 +27,51 @@ exports.methods = {
         catch (error) {
             console.error('Error opening Log Bridge:', error);
         }
+    },
+    /**
+     * 获取当前场景信息
+     * 通过调用场景脚本的getSceneInfo方法
+     * @returns 场景信息
+     */
+    async getSceneInfo() {
+        try {
+            // 调用场景脚本的方法
+            const result = await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'cocos-mcp',
+                method: 'getSceneInfo',
+                args: []
+            });
+            return result;
+        }
+        catch (error) {
+            console.error('Error getting scene info:', error);
+            return {
+                success: false,
+                message: `获取场景信息失败: ${error.message || error}`
+            };
+        }
+    },
+    /**
+     * 列出场景中的所有节点
+     * @returns 节点列表
+     */
+    async listSceneNodes() {
+        try {
+            // 调用场景脚本的方法
+            const result = await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'cocos-mcp',
+                method: 'listSceneNodes',
+                args: []
+            });
+            return result;
+        }
+        catch (error) {
+            console.error('Error listing scene nodes:', error);
+            return {
+                success: false,
+                message: `列出场景节点失败: ${error.message || error}`
+            };
+        }
     }
 };
 /**

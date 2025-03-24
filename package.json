@@ -15,12 +15,31 @@
                 "path": "Develop",
                 "label": "Open Log Bridge",
                 "message": "open-log-bridge"
+            },
+            {
+                "path": "Develop",
+                "label": "获取场景信息",
+                "message": "get-scene-info"
+            },
+            {
+                "path": "Develop",
+                "label": "列出场景节点",
+                "message": "list-scene-nodes"
             }
         ],
         "messages": {
             "open-log-bridge": {
                 "methods": ["openLogBridge"]
+            },
+            "get-scene-info": {
+                "methods": ["getSceneInfo"]
+            },
+            "list-scene-nodes": {
+                "methods": ["listSceneNodes"]
             }
+        },
+        "scene": {
+            "script": "./dist/Editor/mcpSceneScript.js"
         }
     },
     "dependencies": {

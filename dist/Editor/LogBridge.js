@@ -50,7 +50,8 @@ class LogBridge {
         this.commandHandlers.set('ping', this.handlePing.bind(this));
         // 添加场景相关命令
         this.commandHandlers.set('OPEN_SCENE', this.handleOpenScene.bind(this));
-        this.commandHandlers.set('QUERY_NODE_TREE', this.handleQueryNodeTree.bind(this));
+        this.commandHandlers.set('GET_SCENE_INFO', this.handleGetSceneInfo.bind(this));
+        this.commandHandlers.set('LIST_SCENE_NODES', this.handleListSceneNodes.bind(this));
     }
     startTcpServer() {
         this.server = net.createServer((socket) => {
@@ -197,28 +198,57 @@ class LogBridge {
     }
     async handleOpenScene(params) {
         try {
-            const { handleOpenScene } = await Promise.resolve().then(() => __importStar(require('./Commands/SceneCommands')));
-            return await handleOpenScene(params);
+            const { sceneUuid } = params;
+            if (!sceneUuid) {
+                throw new Error('Missing sceneUuid parameter');
+            }
+            // 调用场景脚本的 open_scene 方法
+            const result = await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'cocos-mcp',
+                method: 'openScene',
+                args: [sceneUuid]
+            });
+            return result;
         }
         catch (error) {
-            console.error(`Error handling open scene command: ${error.message}`);
-            return {
-                success: false,
-                error: error.message
-            };
+            console.error(`Error opening scene: ${error.message}`);
+            throw error;
         }
     }
-    async handleQueryNodeTree(params) {
+    /**
+     * 处理获取场景信息命令
+     */
+    async handleGetSceneInfo(params) {
         try {
-            const { handleQueryNodeTree } = await Promise.resolve().then(() => __importStar(require('./Commands/SceneCommands')));
-            return await handleQueryNodeTree(params);
+            // 调用场景脚本的 getSceneInfo 方法
+            const result = await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'cocos-mcp',
+                method: 'getSceneInfo',
+                args: []
+            });
+            return result;
         }
         catch (error) {
-            console.error(`Error handling query node tree command: ${error.message}`);
-            return {
-                success: false,
-                error: error.message
-            };
+            console.error(`Error getting scene info: ${error.message}`);
+            throw error;
+        }
+    }
+    /**
+     * 处理列出场景节点命令
+     */
+    async handleListSceneNodes(params) {
+        try {
+            // 调用场景脚本的 listSceneNodes 方法
+            const result = await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'cocos-mcp',
+                method: 'listSceneNodes',
+                args: []
+            });
+            return result;
+        }
+        catch (error) {
+            console.error(`Error listing scene nodes: ${error.message}`);
+            throw error;
         }
     }
     destroy() {

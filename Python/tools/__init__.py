@@ -28,7 +28,7 @@ def register_scene_tools(mcp):
     cocos_client = get_cocos_connection()
     scene_tools = SceneTools(cocos_client)
     
-    # 使用普通函数包装对SceneTools的调用
+    # 1. 打开场景工具
     def open_scene(ctx: Context, scene_uuid: str) -> Dict[str, Any]:
         """
         打开指定UUID的场景
@@ -52,5 +52,43 @@ def register_scene_tools(mcp):
             logging.error(f"open_scene错误: {e}", exc_info=True)
             return {"success": False, "error": str(e)}
     
-    # 注册工具，仅保留open_scene
-    mcp.tool(name="open_scene")(open_scene) 
+    # 2. 获取场景信息工具
+    def get_scene_info(ctx: Context) -> Dict[str, Any]:
+        """
+        获取当前场景信息
+        
+        Returns:
+            场景信息
+        """
+        logging.info("MCP处理get_scene_info请求")
+        
+        try:
+            # 调用SceneTools的方法
+            result = scene_tools.get_scene_info()
+            return result
+        except Exception as e:
+            logging.error(f"get_scene_info错误: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+    
+    # 4. 列出场景节点工具
+    def list_scene_nodes(ctx: Context) -> Dict[str, Any]:
+        """
+        列出场景中的所有节点
+        
+        Returns:
+            节点列表
+        """
+        logging.info("MCP处理list_scene_nodes请求")
+        
+        try:
+            # 调用SceneTools的方法
+            result = scene_tools.list_scene_nodes()
+            return result
+        except Exception as e:
+            logging.error(f"list_scene_nodes错误: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+    
+    # 注册工具
+    mcp.tool(name="open_scene")(open_scene)
+    mcp.tool(name="get_scene_info")(get_scene_info)
+    mcp.tool(name="list_scene_nodes")(list_scene_nodes) 
