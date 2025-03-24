@@ -50,6 +50,7 @@ class LogBridge {
         this.commandHandlers.set('ping', this.handlePing.bind(this));
         // 添加场景相关命令
         this.commandHandlers.set('OPEN_SCENE', this.handleOpenScene.bind(this));
+        this.commandHandlers.set('QUERY_NODE_TREE', this.handleQueryNodeTree.bind(this));
     }
     startTcpServer() {
         this.server = net.createServer((socket) => {
@@ -201,6 +202,19 @@ class LogBridge {
         }
         catch (error) {
             console.error(`Error handling open scene command: ${error.message}`);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+    async handleQueryNodeTree(params) {
+        try {
+            const { handleQueryNodeTree } = await Promise.resolve().then(() => __importStar(require('./Commands/SceneCommands')));
+            return await handleQueryNodeTree(params);
+        }
+        catch (error) {
+            console.error(`Error handling query node tree command: ${error.message}`);
             return {
                 success: false,
                 error: error.message

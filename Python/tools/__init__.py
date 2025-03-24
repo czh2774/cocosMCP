@@ -1,7 +1,7 @@
 from .log_tools import register_log_tools
 from cocos_connection import get_cocos_connection
 from mcp.server.fastmcp import Context
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import logging
 
 # 尝试导入 scene_tools，如果不存在则跳过
@@ -52,5 +52,5 @@ def register_scene_tools(mcp):
             logging.error(f"open_scene错误: {e}", exc_info=True)
             return {"success": False, "error": str(e)}
     
-    # 注册工具
+    # 注册工具，仅保留open_scene
     mcp.tool(name="open_scene")(open_scene) 

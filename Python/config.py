@@ -14,7 +14,7 @@ class ServerConfig:
     cocos_port: int = 6400
     
     # Connection settings
-    connection_timeout: float = 30.0  # 30 seconds timeout
+    connection_timeout: float = 5.0  # 5 seconds timeout
     buffer_size: int = 8192  # 8KB buffer size
     
     # Logging settings
