@@ -47,6 +47,9 @@ export class LogBridge {
         this.commandHandlers.set('QUERY_LOGS', this.handleQueryLogs.bind(this));
         this.commandHandlers.set('CLEAR_LOGS', this.handleClearLogs.bind(this));
         this.commandHandlers.set('ping', this.handlePing.bind(this));
+        
+        // 添加场景相关命令
+        this.commandHandlers.set('OPEN_SCENE', this.handleOpenScene.bind(this));
     }
 
     private startTcpServer() {
@@ -208,6 +211,19 @@ export class LogBridge {
 
     private async handlePing(params: any): Promise<any> {
         return { message: 'pong' };
+    }
+
+    private async handleOpenScene(params: any): Promise<any> {
+        try {
+            const { handleOpenScene } = await import('./Commands/SceneCommands');
+            return await handleOpenScene(params);
+        } catch (error: any) {
+            console.error(`Error handling open scene command: ${error.message}`);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
     }
 
     public destroy() {

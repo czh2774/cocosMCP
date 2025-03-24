@@ -90,7 +90,7 @@ class CocosConnection:
             raise
 
     def send_command(self, command_type: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
-        """Send a command to Cocos Creator and return its response."""
+        """发送命令到 Cocos Creator 并返回响应(同步版本)."""
         if not self.sock and not self.connect():
             raise ConnectionError("Not connected to Cocos Creator")
         
@@ -126,11 +126,19 @@ class CocosConnection:
                 logger.error(f"Cocos Creator error: {error_message}")
                 raise Exception(error_message)
             
-            return response.get("result", {})
+            result = response.get("result", {})
+            logger.debug(f"Command result: {result}")
+            return result
         except Exception as e:
             logger.error(f"Communication error with Cocos Creator: {str(e)}")
             self.sock = None
             raise Exception(f"Failed to communicate with Cocos Creator: {str(e)}")
+            
+    async def send_command_async(self, command_type: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
+        """发送命令到 Cocos Creator 并返回响应(异步版本)."""
+        # 这里我们直接调用同步版本，因为异步处理的问题较多
+        # 在实际应用中，如果需要真正的异步，应该使用异步IO库
+        return self.send_command(command_type, params)
 
 # Global connection instance
 _connection: Optional[CocosConnection] = None

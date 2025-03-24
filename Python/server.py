@@ -24,8 +24,10 @@ async def server_lifespan(server: FastMCP) -> AsyncIterator[Dict[str, Any]]:
         # 尝试连接到Cocos Creator
         cocos_connection = get_cocos_connection()
         try:
-            # 验证连接是否有效
-            cocos_connection.send_command("ping")
+            # 验证连接是否有效 - 使用同步方式
+            # 我们直接使用socket发送ping而不是调用异步方法
+            cocos_connection.sock.sendall(b"ping")
+            response_data = cocos_connection.receive_full_response(cocos_connection.sock)
             logger.info("Connected to Cocos Creator on startup")
         except Exception as e:
             logger.warning(f"Could not verify Cocos Creator connection: {str(e)}")
