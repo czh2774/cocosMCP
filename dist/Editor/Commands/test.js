@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.testCommand = testCommand;
+exports.testCommand = void 0;
 /**
  * 测试命令
  */
@@ -11,3 +11,4 @@ function testCommand() {
     console.warn('WebSocket server started');
     console.error('Ready to receive connections');
 }
+exports.testCommand = testCommand;
