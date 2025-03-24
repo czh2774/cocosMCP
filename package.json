@@ -1,0 +1,33 @@
+{
+    "package_version": 2,
+    "version": "1.0.0",
+    "name": "cocos-mcp",
+    "description": "Cocos Creator MCP Log Bridge",
+    "main": "./dist/Editor/main.js",
+    "author": "Your Name",
+    "editor": ">=3.0.0",
+    "scripts": {
+        "build": "tsc"
+    },
+    "contributions": {
+        "menu": [
+            {
+                "path": "Develop",
+                "label": "Open Log Bridge",
+                "message": "open-log-bridge"
+            }
+        ],
+        "messages": {
+            "open-log-bridge": {
+                "methods": ["openLogBridge"]
+            }
+        }
+    },
+    "dependencies": {
+        "ws": "^8.16.0"
+    },
+    "devDependencies": {
+        "@types/ws": "^8.5.10",
+        "typescript": "^5.3.3"
+    }
+} 

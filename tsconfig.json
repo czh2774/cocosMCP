@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "target": "ES2017",
+        "module": "CommonJS",
+        "outDir": "./dist",
+        "rootDir": "./",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "node",
+        "typeRoots": [
+            "./Editor/@types",
+            "./node_modules/@types"
+        ]
+    },
+    "include": [
+        "Editor/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+} 

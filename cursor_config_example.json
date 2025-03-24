@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "cocosMCP": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/plok/mcp/cocos-mcp-/extensions/cocos-mcp/Python",
+        "run",
+        "server.py"
+      ]
+    }
+  }
+} 
