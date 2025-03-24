@@ -27,16 +27,23 @@ async def query_logs(
     """
     try:
         cocos = get_cocos_connection()
-        result = cocos.send_command("QUERY_LOGS", {
+        # 保存日志请求的副本，因为我们要修改它
+        params = {
             "show_logs": show_logs,
             "show_warnings": show_warnings,
-            "show_errors": show_errors,
-            "search_term": search_term
-        })
+            "show_errors": show_errors
+        }
+        
+        # 只有在提供了 search_term 且非空且是字符串类型时才添加
+        if search_term and isinstance(search_term, str) and search_term.strip():
+            logger.info(f"Adding search term to log query: {search_term}")
+            params["search_term"] = search_term.strip()
+            
+        result = cocos.send_command("QUERY_LOGS", params)
         return result
     except Exception as e:
         logger.error(f"Error querying logs: {e}")
-        return {"error": str(e)}
+        return {"error": str(e), "logs": []}
 
 async def clear_logs(ctx: Context) -> Dict[str, Any]:
     """
@@ -95,7 +102,34 @@ def log_management_guide() -> str:
 
 def register_log_tools(mcp):
     """Register all log tools with the MCP server."""
-    mcp.tool()(query_logs)
+    # 使用装饰器样式，但通过 function_def 方式明确定义参数
+    mcp.tool(
+        name="query_logs",
+        description="Query Cocos Creator editor logs with optional filtering",
+        parameters={
+            "show_logs": {
+                "type": "boolean",
+                "description": "Include regular logs in results",
+                "default": True
+            },
+            "show_warnings": {
+                "type": "boolean",
+                "description": "Include warning logs in results",
+                "default": True
+            },
+            "show_errors": {
+                "type": "boolean",
+                "description": "Include error logs in results",
+                "default": True
+            },
+            "search_term": {
+                "type": "string", 
+                "description": "Optional search term to filter logs",
+                "required": False
+            }
+        }
+    )(query_logs)
+    
     mcp.tool()(clear_logs)
     mcp.tool()(connection_status)
     mcp.prompt()(log_management_guide) 

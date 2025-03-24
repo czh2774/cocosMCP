@@ -121,17 +121,37 @@ class FastMCP:
             'params': params
         })
 
-def register_editor_tools(mcp: FastMCP):
-    """Register all editor tools with the MCP instance."""
-    # The tools are already defined as methods in the FastMCP class
-    pass
-
-def register_editor_tools(mcp: FastMCP):
-    """Register all editor control tools with the MCP server."""
+def register_editor_tools(mcp):
+    """Register all editor tools with the MCP server."""
     
-    @mcp.tool()
+    @mcp.tool(
+        name="read_console",
+        description="Read log messages from the Cocos Creator Console",
+        parameters={
+            "show_logs": {
+                "type": "boolean",
+                "description": "Whether to include regular log messages",
+                "default": True
+            },
+            "show_warnings": {
+                "type": "boolean",
+                "description": "Whether to include warning messages",
+                "default": True
+            },
+            "show_errors": {
+                "type": "boolean",
+                "description": "Whether to include error messages",
+                "default": True
+            },
+            "search_term": {
+                "type": "string",
+                "description": "Optional text to filter logs by content",
+                "required": False
+            }
+        }
+    )
     def read_console(
-        ctx: Context,
+        ctx,
         show_logs: bool = True,
         show_warnings: bool = True,
         show_errors: bool = True,
