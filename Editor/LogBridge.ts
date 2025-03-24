@@ -139,6 +139,7 @@ export class LogBridge {
             const showWarnings = params.show_warnings !== false;
             const showErrors = params.show_errors !== false;
             const searchTerm = params.search_term || '';
+            const moduleFilter = params.module_filter || '';
 
             // 直接使用 Editor.Logger.query() API 获取日志列表
             console.log('Querying logs with Editor.Logger.query()...');
@@ -147,7 +148,7 @@ export class LogBridge {
             console.log(`Found ${logs.length} logs`);
 
             // 根据类型过滤
-            const filteredLogs = logs.filter((log: LogEntry) => {
+            let filteredLogs = logs.filter((log: LogEntry) => {
                 const type = log.type.toLowerCase();
                 return (
                     (showLogs && type === 'log') ||
@@ -155,6 +156,16 @@ export class LogBridge {
                     (showErrors && type === 'error')
                 );
             });
+
+            // 根据模块过滤
+            if (moduleFilter) {
+                console.log(`Filtering logs by module: "${moduleFilter}"`);
+                const modulePattern = `[${moduleFilter}]`;
+                filteredLogs = filteredLogs.filter((log: LogEntry) => {
+                    return log.message.includes(modulePattern);
+                });
+                console.log(`Found ${filteredLogs.length} logs matching module filter`);
+            }
 
             // 根据搜索词过滤
             if (searchTerm) {
