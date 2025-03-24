@@ -6,6 +6,8 @@ Cocos MCP 是一个连接 Cocos Creator 编辑器和 Cursor AI 的桥接工具�
 
 - 日志查询和过滤
 - 日志清除
+- 场景信息获取和节点查询
+- 场景操作（打开场景等）
 - TCP 通信桥接
 
 ## 安装
@@ -93,6 +95,79 @@ response = await mcp.clear_logs()
 status = await mcp.connection_status()
 ```
 
+### 场景工具
+
+#### 获取当前场景信息
+
+获取当前打开场景的基本信息，包括名称、UUID和节点数量。
+
+```python
+scene_info = await mcp.get_scene_info()
+```
+
+示例返回数据：
+```json
+{
+  "success": true,
+  "data": {
+    "name": "scene-2d",
+    "uuid": "2ba0a28b-5be6-420b-b7d3-c7ba097f13fa",
+    "nodeCount": 38
+  }
+}
+```
+
+#### 列出场景中的所有节点
+
+获取场景中所有节点的详细信息，包括名称、UUID、路径等。
+
+```python
+nodes = await mcp.list_scene_nodes()
+```
+
+示例返回数据（部分）：
+```json
+{
+  "success": true,
+  "data": {
+    "nodeCount": 38,
+    "nodes": [
+      {
+        "name": "scene-2d",
+        "uuid": "2ba0a28b-5be6-420b-b7d3-c7ba097f13fa",
+        "path": "scene-2d",
+        "childCount": 3,
+        "active": true
+      },
+      {
+        "name": "Canvas",
+        "uuid": "beI88Z2HpFELqR4T5EMHpg",
+        "path": "scene-2d/Canvas",
+        "childCount": 1,
+        "active": true
+      },
+      // ... 更多节点
+    ]
+  }
+}
+```
+
+#### 打开场景
+
+通过UUID打开指定的场景。
+
+```python
+result = await mcp.open_scene("2ba0a28b-5be6-420b-b7d3-c7ba097f13fa")
+```
+
+示例返回数据：
+```json
+{
+  "success": true,
+  "message": "Scene opened successfully"
+}
+```
+
 ## 工作原理
 
 1. Cocos MCP 扩展在 Cocos Creator 中启动一个 TCP 服务器（默认端口：6400）
@@ -104,6 +179,14 @@ status = await mcp.connection_status()
 ### 日志查询实现
 
 Cocos MCP 扩展使用 `Editor.Logger.query()` API 获取 Cocos Creator 的日志，然后根据请求的参数进行过滤。由于 Cocos Creator 的 API 限制，所有日志都会先被获取，然后在内存中进行过滤。
+
+### 场景脚本实现
+
+场景工具通过 Cocos Creator 的场景脚本机制实现，主要包括以下步骤：
+
+1. 在扩展的 `package.json` 中注册场景脚本
+2. 实现场景脚本，访问场景和节点信息
+3. 通过 TCP 通信桥将场景操作暴露给 Cursor AI
 
 ### TCP 通信协议
 
@@ -122,6 +205,9 @@ TCP 通信使用 JSON 格式的消息：
 支持的命令类型：
 - `QUERY_LOGS`: 查询日志
 - `CLEAR_LOGS`: 清除日志
+- `GET_SCENE_INFO`: 获取场景信息
+- `LIST_SCENE_NODES`: 列出场景节点
+- `OPEN_SCENE`: 打开场景
 - `ping`: 连接测试
 
 ## 应用场景
@@ -155,30 +241,41 @@ physics_logs = await mcp.query_logs({
 })
 ```
 
-### 场景三：监控性能相关警告
+### 场景三：分析场景结构
 
-使用搜索词过滤来监控性能相关的警告：
+当你需要了解当前场景的结构和组织方式时：
 
 ```python
-performance_warnings = await mcp.query_logs({
-    "show_logs": False,
-    "show_warnings": True,
-    "show_errors": False,
-    "search_term": "performance"
-})
+# 获取场景信息
+scene_info = await mcp.get_scene_info()
+print(f"当前场景: {scene_info['data']['name']}, 包含 {scene_info['data']['nodeCount']} 个节点")
+
+# 获取所有节点
+nodes = await mcp.list_scene_nodes()
+# 分析节点层次结构
+root_nodes = [node for node in nodes['data']['nodes'] if '/' not in node['path']]
+print(f"根节点数量: {len(root_nodes)}")
+
+# 查找特定类型的节点，如相机
+cameras = [node for node in nodes['data']['nodes'] if 'Camera' in node['name']]
+print(f"找到 {len(cameras)} 个相机节点")
 ```
 
-### 场景四：调试资源加载问题
+### 场景四：快速切换场景
 
-查找与资源加载相关的日志：
+在开发过程中需要频繁切换不同场景进行测试时：
 
 ```python
-asset_logs = await mcp.query_logs({
-    "show_logs": True,
-    "show_warnings": True,
-    "show_errors": True,
-    "search_term": "assets"
-})
+# 存储常用场景的UUID
+scenes = {
+    "主菜单": "uuid-of-main-menu-scene",
+    "战斗": "uuid-of-battle-scene",
+    "商店": "uuid-of-shop-scene"
+}
+
+# 快速切换到指定场景
+await mcp.open_scene(scenes["战斗"])
+print("已切换到战斗场景")
 ```
 
 ## 高级用法
@@ -199,6 +296,24 @@ errors = await mcp.query_logs({
 for log in errors.get("logs", []):
     print(f"分析错误: {log['message']}")
     # Cursor AI 分析代码...
+```
+
+### 场景结构分析与优化
+
+使用场景节点信息来分析游戏性能瓶颈：
+
+```python
+nodes = await mcp.list_scene_nodes()
+
+# 查找子节点数量过多的节点（可能导致性能问题）
+complex_nodes = []
+for node in nodes['data']['nodes']:
+    if node['childCount'] > 20:  # 假设超过20个子节点为复杂节点
+        complex_nodes.append(node)
+
+print(f"发现 {len(complex_nodes)} 个复杂节点可能需要优化:")
+for node in complex_nodes:
+    print(f"  - {node['path']} (子节点数: {node['childCount']})")
 ```
 
 ### 自动清理日志
@@ -249,8 +364,14 @@ while True:
 
 1. 确认 Cocos Creator 已启动并加载了 cocos-mcp 扩展
 2. 检查 TCP 端口（6400）是否被占用
-3. 重启 Cocos Creator 编辑器
-4. 重新启动 MCP 服务器
+
+### 场景操作失败
+
+如果场景相关操作失败：
+
+1. 确认 Cocos Creator 处于编辑模式而非运行模式
+2. 检查提供的场景 UUID 是否正确
+3. 重新启动 Cocos Creator 和 MCP 服务器
 
 ## 最佳实践
 

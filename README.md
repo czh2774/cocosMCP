@@ -5,7 +5,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/czh2774/cocosMCP.svg)](https://github.com/czh2774/cocosMCP/stargazers)
 [![License](https://img.shields.io/github/license/czh2774/cocosMCP.svg)](https://github.com/czh2774/cocosMCP/blob/main/LICENSE)
 
-![Cocos MCP Log Bridge](https://img.shields.io/badge/Cocos%20Creator-3.8.0%2B-blue)
+![Cocos Creator](https://img.shields.io/badge/Cocos%20Creator-3.8.0%2B-blue)
 ![Cursor AI](https://img.shields.io/badge/Cursor%20AI-Compatible-green)
 
 ## 🌟 功能特点
@@ -14,6 +14,8 @@
 - **智能过滤**: 支持按类型过滤（普通日志、警告、错误）
 - **关键词搜索**: 精确定位特定问题
 - **一键清除**: 随时清空日志以减少干扰
+- **场景信息**: 获取当前场景的基本信息和节点列表
+- **场景操作**: 支持打开场景等基础操作
 - **TCP 通信桥接**: 稳定可靠的通信机制
 - **Cursor AI 集成**: 完全兼容 Cursor MCP 协议
 
@@ -65,6 +67,15 @@ await mcp.clear_logs()
 
 # 检查连接状态
 status = await mcp.connection_status()
+
+# 获取场景信息
+scene_info = await mcp.get_scene_info()
+
+# 列出场景中的所有节点
+nodes = await mcp.list_scene_nodes()
+
+# 打开指定UUID的场景
+await mcp.open_scene("scene-uuid-here")
 ```
 
 ## 📚 详细文档
