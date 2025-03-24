@@ -102,34 +102,7 @@ def log_management_guide() -> str:
 
 def register_log_tools(mcp):
     """Register all log tools with the MCP server."""
-    # 使用装饰器样式，但通过 function_def 方式明确定义参数
-    mcp.tool(
-        name="query_logs",
-        description="Query Cocos Creator editor logs with optional filtering",
-        parameters={
-            "show_logs": {
-                "type": "boolean",
-                "description": "Include regular logs in results",
-                "default": True
-            },
-            "show_warnings": {
-                "type": "boolean",
-                "description": "Include warning logs in results",
-                "default": True
-            },
-            "show_errors": {
-                "type": "boolean",
-                "description": "Include error logs in results",
-                "default": True
-            },
-            "search_term": {
-                "type": "string", 
-                "description": "Optional search term to filter logs",
-                "required": False
-            }
-        }
-    )(query_logs)
-    
+    mcp.tool()(query_logs)
     mcp.tool()(clear_logs)
     mcp.tool()(connection_status)
     mcp.prompt()(log_management_guide) 

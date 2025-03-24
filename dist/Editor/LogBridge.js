@@ -154,12 +154,15 @@ class LogBridge {
             });
             // 根据搜索词过滤
             if (searchTerm) {
+                console.log(`Filtering logs by search term: "${searchTerm}"`);
                 const terms = searchTerm.toLowerCase().split(' ');
+                const searchResults = filteredLogs.filter((log) => {
+                    const content = log.message.toLowerCase();
+                    return terms.every((term) => content.includes(term));
+                });
+                console.log(`Found ${searchResults.length} logs matching search term`);
                 return {
-                    logs: filteredLogs.filter((log) => {
-                        const content = log.message.toLowerCase();
-                        return terms.every((term) => content.includes(term));
-                    })
+                    logs: searchResults
                 };
             }
             return {
