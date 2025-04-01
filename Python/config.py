@@ -10,7 +10,7 @@ class ServerConfig:
     """Main configuration class for the MCP server."""
     
     # Cocos Creator connection settings
-    cocos_host: str = "localhost"
+    cocos_host: str = "::1"  # 使用IPv6地址
     cocos_port: int = 6400
     
     # Connection settings

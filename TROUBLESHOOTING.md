@@ -23,6 +23,34 @@
 3. 在 Cocos Creator 中，重新启用 cocos-mcp 扩展
 4. 重启 Cocos Creator 和 MCP 服务器
 
+### 问题: IPv6/IPv4 连接不兼容
+
+**症状:**
+- 可以确认 Cocos Creator 在监听端口 6400，但 MCP 客户端仍然无法连接
+- 日志显示错误 `"Failed to connect to Cocos Creator: [Errno 61] Connection refused"`
+- 通过 `lsof -i :6400` 可以看到服务在监听，但 `nc -zv localhost 6400` 却连接失败
+
+**解决方案:**
+1. 检查 Cocos Creator 是否在使用 IPv6 而非 IPv4 监听端口：
+   ```bash
+   netstat -an | grep 6400
+   ```
+   如果看到 `tcp6` 和 `::1.6400`，表明服务器使用的是 IPv6 地址
+   
+2. 修改 MCP 客户端配置使用 IPv6 地址：
+   - 编辑 `extensions/cocosMCP/Python/config.py`，将 `cocos_host` 从 "localhost" 改为 "::1"：
+     ```python
+     cocos_host: str = "::1"  # 使用IPv6地址而非localhost
+     ```
+     
+3. 修改 socket 连接类型支持 IPv6：
+   - 编辑 `extensions/cocosMCP/Python/cocos_connection.py`，将 socket 类型从 `AF_INET` 改为 `AF_INET6`：
+     ```python
+     self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+     ```
+     
+4. 重启 MCP 服务器和 Cocos Creator 编辑器
+
 ### 问题: 连接断开后无法重连
 
 **症状:**
@@ -104,6 +132,49 @@ response = await mcp.query_logs({
 3. 检查 Python 版本是否兼容（需要 3.7+）：
    ```bash
    python --version
+   ```
+
+### 问题: 使用 uv 命令启动时找不到依赖
+
+**症状:**
+- 使用 uv run server.py 时报错 `ModuleNotFoundError: No module named 'mcp'`
+- 虽然已经在系统或虚拟环境中安装了依赖，但 uv 命令找不到
+
+**解决方案:**
+1. 创建一个启动脚本，明确指定 Python 解释器和环境：
+   ```bash
+   # start_server.sh
+   #!/bin/bash
+   
+   # 确保使用正确的 Python
+   PYTHON_PATH="/path/to/python3"
+   
+   # 检查 mcp 模块是否可用，如果不可用则安装
+   $PYTHON_PATH -c "import mcp" 2>/dev/null || $PYTHON_PATH -m pip install mcp --break-system-packages
+   
+   # 设置 PYTHONPATH 以确保可以找到所有模块
+   cd "$(dirname "$0")"
+   export PYTHONPATH=$PYTHONPATH:$(pwd)
+   
+   # 启动服务器
+   $PYTHON_PATH server.py
+   ```
+
+2. 给脚本添加执行权限：
+   ```bash
+   chmod +x start_server.sh
+   ```
+
+3. 在 Cursor MCP 配置中使用脚本替代 uv 命令：
+   ```json
+   {
+     "mcpServers": {
+       "cocosMCP": {
+         "command": "/path/to/extensions/cocosMCP/Python/start_server.sh",
+         "args": []
+       }
+     }
+   }
    ```
 
 ### 问题: 扩展无法在 Cocos Creator 中加载

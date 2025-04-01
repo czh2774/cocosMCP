@@ -1,6 +1,6 @@
 # MCP协议依赖
-mcp-python-client>=0.1.0
+mcp>=0.1.0
 
 # 类型提示支持
 typing-extensions>=4.0.0
-dataclasses>=0.6 
+dataclasses>=0.6

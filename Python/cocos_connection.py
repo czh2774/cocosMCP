@@ -26,7 +26,7 @@ class CocosConnection:
         if self.sock:
             return True
         try:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
             self.sock.connect((self.host, self.port))
             logger.info(f"Connected to Cocos Creator at {self.host}:{self.port}")
             return True
